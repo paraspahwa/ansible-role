@@ -1,0 +1,31 @@
+---
+- name: install apache servers
+  hosts: webservers
+  become: true
+
+  tasks:
+    - name: install apache
+      apt:
+        name: apache2
+        state: present
+    - name: start apache service
+      service:
+        name: apache2
+        state: started
+    - name: add firewall rules
+      firewalld:
+        port: 80/tcp
+        permanent: true
+        state: enabled
+    - name: reload firewall configuration for the new rule
+      systemd:
+        name: firewalld
+        state: reloaded
+    - name: copy index file to apache directory
+      copy:
+        src: /tmp/index.html
+        dest: /var/www/html/
+    - name: restartapache service
+      service:
+        name: apache2
+        state: restarted
